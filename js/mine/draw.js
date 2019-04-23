@@ -429,47 +429,30 @@ var classDraw = function (scale, canv_id, width, height) {
 							g_h = main.drawObj.height;
 
 						main.canvas.remove(main.drawObj);
-						main.drawObj = new fabric.Rect({
-							type_of: main.shape,
-							left: l,
-							top: t,
+						var rect = new fabric.Rect({						
 							width: g_w,
 							height: g_h,
 							fill: "transparent",
 							stroke: main.backColor,
 							hasBorders: true
 						});
+						var textInRect = new fabric.IText("Input text here", {
+							width: g_w,
+							height: g_h,
+							fontFamily: main.fontFamily,
+							fontStyle: main.fontStyle,
+							fontSize: main.fontSize,
+							fill: main.drawColor,
+							selectable: false
+						});
+						main.drawObj = new fabric.Group([rect, textInRect],
+						{	
+							type_of: 'rect',
+							left: l,
+							top: t
+						});				
 						main.canvas.add(main.drawObj);
-						// 	var start_x = main.drawObj.start_x;
-						// 	var start_y = main.drawObj.start_y;
-						// 	var g_w = Math.abs(start_x - main.sPos.x);						
-						// 	var g_h = Math.abs(start_y - main.sPos.y);
-						// 	main.canvas.remove(main.drawObj);
-
-						// 	var rect = new fabric.Rect({							
-						// 		width: g_w,
-						// 		height: g_h,
-						// 		fill: "transparent",
-						// 		stroke: main.backColor,
-						// 		hasBorders: true
-						// 	});
-						// 	var textInRect = new fabric.IText("Input text here", {
-						// 		width: g_w,
-						// 		height: g_h,
-						// 		fontFamily: main.fontFamily,
-						// 		fontStyle: main.fontStyle,
-						// 		fontSize: main.fontSize,
-						// 		fill: main.drawColor							
-						// 	});
-						// 	main.drawObj = new fabric.Group([rect, textInRect],
-						// 		{	
-						// 			type_of: main.shape,
-						// 			left: start_x,
-						// 			top: start_y
-						// 		});						
-						// 	main.canvas.add(main.drawObj);
-					}
-					console.log('mouseu p')
+					}					
 					break;
 				case "text":
 					break;
@@ -557,22 +540,62 @@ var classDraw = function (scale, canv_id, width, height) {
 			}
 		});
 		main.canvas.on({
-			'object:scaling': function (e) {
+			'object:scaling': function (e) {				
 				var obj = e.target,
 					w = obj.width * obj.scaleX,
 					h = obj.height * obj.scaleY,
 					s = obj.strokeWidth;
+				
 				if (obj.type_of == "rect") { //only group rect
 					obj.set({
-						'height': obj.height,
-						'width': obj.width,
-						'scaleX': 1,
-						'scaleY': 1,
-						h: h,
-						w: w
+						type_of: 'rect',
+						height: h,
+						width: w,
+						strokeWidth: s
 					});
 				}
 			}
+		});
+		main.canvas.on({'object:modified': function (e) {				
+				var group = e.target,
+					l = group.left,
+					t = group.top,
+					g_w = group.width,
+					g_h = group.height;					
+				
+				if(group.type_of == "rect"){
+					var ff = group._objects[1].fontFamily,
+						fs = group._objects[1].fontSize,
+						fst = group._objects[1].fontStyle;
+					
+					main.canvas.remove(group);
+					var rect = new fabric.Rect({						
+						width: g_w,
+						height: g_h,
+						fill: "transparent",
+						stroke: main.backColor,
+						hasBorders: true
+					});
+					var textInRect = new fabric.IText("Input text here", {
+						left:0,
+						top: 0,
+						width: g_w,
+						height: g_h,
+						fontFamily: ff,
+						fontStyle: fst,
+						fontSize: fs,
+						fill: main.drawColor,
+						selectable: false
+					});
+					main.drawObj = new fabric.Group([rect, textInRect],
+					{	
+						type_of: 'rect',
+						left: l,
+						top: t
+					});				
+					main.canvas.add(main.drawObj);
+				}				
+			}			
 		});
 	}
 
@@ -850,7 +873,19 @@ var classDraw = function (scale, canv_id, width, height) {
 
 		switch (main.clipboard.type_of) {
 			case "rect":
+				var cloned_text, cloned_rect, cloned = main.clipboard;
+				cloned_text = fabric.IText.fromObject(cloned._objects[1].toObject());				
+				cloned_text.type = 'text';
+				cloned_rect = cloned._objects[0].clone();
+				cloned_rect.type = 'rect';
 
+				var copied = new fabric.Group([cloned_rect, cloned_text], {
+					left: x,
+					top: y,
+					type_of: main.clipboard.type_of
+				});				
+				main.canvas.add(copied);
+				cloned.setCoords();
 				break;
 			case "text":
 				var cloned = main.clipboard;
@@ -858,6 +893,8 @@ var classDraw = function (scale, canv_id, width, height) {
 				copied.left = x;
 				copied.top = y;
 				copied.type_of = 'text';
+				main.canvas.add(copied);
+				copied.setCoords();
 				break;
 			case "comment":
 				var bg = main.clipboard._objects[0, 0].clone();
@@ -873,10 +910,10 @@ var classDraw = function (scale, canv_id, width, height) {
 					top: bg.top,
 					type: main.clipboard.type_of
 				});
+				main.canvas.add(copied);
+				copied.setCoords();
 				break;
-		}
-		main.canvas.add(copied);
-		copied.setCoords();
+		}				
 		main.canvas.renderAll();
 	}
 
