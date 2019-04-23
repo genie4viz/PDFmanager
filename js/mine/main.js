@@ -28,7 +28,7 @@ var initEnv = function () {
     main.downloadPDF();
     //------------------------------------------------------------------------//
 
-    setTimeout(() => {
+    //setTimeout(() => {
       main.initPDF();
       main.initEvents();
       main.initUploader();
@@ -36,7 +36,7 @@ var initEnv = function () {
       main.initFonts();
       main.initSizes();
       window.addEventListener("resize", main.initCSS);
-    }, 3000);
+   // }, 3000);
   };
 
   main.initPDF = function () {
@@ -403,13 +403,69 @@ var initEnv = function () {
           canvasZoom = main.drawObj.canvas.getZoom();
           hPosX = $(".canvas-container").offset().left + obj.left * canvasZoom;
           hPosY = $(".canvas-container").offset().top + obj.top * canvasZoom;
-          //	alert(obj);
+          
           switch (obj.type_of) {
             case "text":
               main.drawObj.drawObj = obj;
               main.drawObj.drawObj.enterEditing();
               break;
-            case "rect":
+            case "rect":              
+              main.drawObj.drawObj = obj;
+              var rect = obj._objects[0], text = obj._objects[1];
+              
+              main.drawObj.canvas.remove(obj);
+              var new_rect = new fabric.Rect({
+                left: obj.left,
+                top: obj.top,
+                width: obj.width,
+                height: obj.height,
+                fill: "transparent",
+                stroke: rect.stroke,
+                hasBorders: true
+              });  
+              var textInRect = new fabric.IText(text.text, {
+                left: obj.left,
+                top: obj.top,
+                fontFamily: text.fontFamily,
+                fontStyle: text.fontStyle,
+                fontSize: text.fontSize,
+                fill: text.fill,
+                hasBorders: false
+              });
+              textInRect.setControlsVisibility({bl: false, br: false, mb: false, ml: false, mr: false, mt: false, tl: false, tr: false, mtr: false});
+              main.drawObj.canvas.add(new_rect, textInRect);
+              main.drawObj.canvas.bringToFront(textInRect);              
+              
+              textInRect.on('editing:exited', function () {
+                  main.drawObj.canvas.remove(new_rect);
+                  main.drawObj.canvas.remove(textInRect);
+                  var new_rect1 = new fabric.Rect({
+                    left: 0,
+                    top: 0,
+                    width: obj.width,
+                    height: obj.height,
+                    fill: "transparent",
+                    stroke: rect.stroke,
+                    hasBorders: true
+                  });  
+                  var textInRect1 = new fabric.IText(textInRect.text, {
+                    left: 0,
+                    top: 0,
+                    fontFamily: text.fontFamily,
+                    fontStyle: text.fontStyle,
+                    fontSize: text.fontSize,
+                    fill: text.fill,
+                    hasBorders: false
+                  });
+                  var grp = new fabric.Group([new_rect1, textInRect1], {
+                    type_of: obj.type_of,
+                    left: obj.left,
+                    top: obj.top,
+                    width: obj.width,
+                    height: obj.height
+                  });                  
+                  main.drawObj.canvas.add(grp);
+              });
               break;
             case "comment":
               main.drawObj.drawObj = obj;

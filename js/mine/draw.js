@@ -68,7 +68,9 @@ var classDraw = function (scale, canv_id, width, height) {
 	}
 
 	main.initFabric = function () {
-		main.canvas = new fabric.Canvas(main.canvasID);
+		main.canvas = new fabric.Canvas(main.canvasID,{
+			preserveObjectStacking: true
+		});
 		main.canvas.setZoom(main.scale);
 		main.canvas.renderAll();
 	}
@@ -429,7 +431,9 @@ var classDraw = function (scale, canv_id, width, height) {
 							g_h = main.drawObj.height;
 
 						main.canvas.remove(main.drawObj);
-						var rect = new fabric.Rect({						
+						var rect = new fabric.Rect({
+							left:0,
+							top: 0,
 							width: g_w,
 							height: g_h,
 							fill: "transparent",
@@ -437,6 +441,8 @@ var classDraw = function (scale, canv_id, width, height) {
 							hasBorders: true
 						});
 						var textInRect = new fabric.IText("Input text here", {
+							left:0,
+							top: 0,
 							width: g_w,
 							height: g_h,
 							fontFamily: main.fontFamily,
@@ -556,7 +562,8 @@ var classDraw = function (scale, canv_id, width, height) {
 				}
 			}
 		});
-		main.canvas.on({'object:modified': function (e) {				
+		main.canvas.on({'object:modified': function (e) {
+				console.log('abc')
 				var group = e.target,
 					l = group.left,
 					t = group.top,
@@ -569,14 +576,16 @@ var classDraw = function (scale, canv_id, width, height) {
 						fst = group._objects[1].fontStyle;
 					
 					main.canvas.remove(group);
-					var rect = new fabric.Rect({						
+					var rect = new fabric.Rect({
+						left: 0,
+						top: 0,
 						width: g_w,
 						height: g_h,
 						fill: "transparent",
 						stroke: main.backColor,
 						hasBorders: true
 					});
-					var textInRect = new fabric.IText("Input text here", {
+					var textInRect = new fabric.IText(group._objects[1].text, {
 						left:0,
 						top: 0,
 						width: g_w,
@@ -596,7 +605,7 @@ var classDraw = function (scale, canv_id, width, height) {
 					main.canvas.add(main.drawObj);
 				}				
 			}			
-		});
+		});		
 	}
 
 	main.rulerLabel = function (pixel, rulerScale) {
@@ -627,9 +636,9 @@ var classDraw = function (scale, canv_id, width, height) {
 			var left = obj.left;
 			var top = obj.top;
 
-			switch (obj.type) {
+			switch (obj.type_of) {
 				case "rect":
-					//$("#popup_text textarea").val("ddd");
+					
 					break;
 				case "picture":
 					$("#popup_image img").attr("src", obj.src)
@@ -705,8 +714,6 @@ var classDraw = function (scale, canv_id, width, height) {
 			// main.hideProperty();
 			return;
 		}
-
-
 
 		switch (main.drawObj.type_of) {
 			case "select":
@@ -1063,3 +1070,14 @@ fabric.BorderTextBox = fabric.util.createClass(fabric.Textbox, {
 		ctx.fontFamily = this.fontFamily;
 	}
 });
+var groupDblClick = function (obj, handler) {
+    return function () {
+        if (obj.clicked) handler(obj);
+        else {
+            obj.clicked = true;
+            setTimeout(function () {
+                obj.clicked = false;
+            }, 500);
+        }
+    };
+};
