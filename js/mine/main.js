@@ -335,8 +335,7 @@ var initEnv = function () {
     });
 
     $("#btn_insert_img").on("click", function () {
-      var filename = $("#txt_url").val();
-
+      var filename = $("#txt_url").val();      
       canvasZoom = main.canvas.getZoom();
       cPosX =
         ($("#popup_area").offset().left -
@@ -977,7 +976,7 @@ var initEnv = function () {
         }
       }
     });
-
+    
     $("#font_style li").on("click", function () {
       $("#font_style h5").html($(this).html());
       main.drawObj.fontStyle = $(this).html();
@@ -1073,6 +1072,9 @@ var initEnv = function () {
       var canvas = main.drawObj.canvas;      
       canvas.loadFromJSON(JSON.parse(json), canvas.renderAll.bind(canvas), function (o, object) {        
       });
+    });
+    $("li #btn_file_upload").on("click", () => {
+      console.log('heyd')
     });
   };
 };

@@ -562,8 +562,7 @@ var classDraw = function (scale, canv_id, width, height) {
 				}
 			}
 		});
-		main.canvas.on({'object:modified': function (e) {
-				console.log('abc')
+		main.canvas.on({'object:modified': function (e) {				
 				var group = e.target,
 					l = group.left,
 					t = group.top,
