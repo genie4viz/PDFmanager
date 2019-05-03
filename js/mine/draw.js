@@ -104,14 +104,8 @@ var classDraw = function (scale, canv_id, width, height) {
 			};
 
 			switch (main.shape) {
-				case "rect":
+				case "cloud":
 					{
-						// var textInRect = new fabric.IText("Input text here", {
-						// 	fontFamily: main.fontFamily,
-						// 	fontStyle: main.fontStyle,
-						// 	fontSize: main.fontSize,
-						// 	fill: main.drawColor
-						// });
 						main.drawObj = new fabric.Rect({
 							type_of: main.shape,
 							width: 20,
@@ -122,13 +116,6 @@ var classDraw = function (scale, canv_id, width, height) {
 							top: top,
 							hasBorders: true
 						});
-
-						// main.drawObj = new fabric.Group([rect, textInRect],
-						// 	{	
-						// 		type_of: main.shape,
-						// 		left: left,
-						// 		top: top
-						// 	});						
 						main.canvas.add(main.drawObj);
 					}
 					break;
@@ -147,6 +134,7 @@ var classDraw = function (scale, canv_id, width, height) {
 
 						var path_obj = new fabric.Path(arrow_path, {
 							type: "path",
+							type_of: main.shape,
 							left: 0,
 							top: 0,
 							stroke: main.drawColor,
@@ -222,6 +210,7 @@ var classDraw = function (scale, canv_id, width, height) {
 
 						ruler_line = new fabric.Path(arrow_path, {
 							type: "path",
+							type_of: main.shape,
 							left: 0,
 							top: 0,
 							stroke: main.drawColor,
@@ -231,6 +220,7 @@ var classDraw = function (scale, canv_id, width, height) {
 
 						ruler_text = new fabric.Text("Length : 0m", {
 							type: 'text',
+							type_of: main.shape,
 							left: 0,
 							top: -10,
 							fill: main.drawColor,
@@ -330,7 +320,7 @@ var classDraw = function (scale, canv_id, width, height) {
 			var radius = Math.sqrt(2 * main.arrowSize * main.arrowSize);
 
 			switch (main.shape) {
-				case "rect":
+				case "cloud":
 					{
 						main.drawObj.left = Math.min(left, main.sPos.x);
 						main.drawObj.top = Math.min(top, main.sPos.y);
@@ -418,24 +408,25 @@ var classDraw = function (scale, canv_id, width, height) {
 
 		main.canvas.on("mouse:up", function (evt) {
 			main.isDrawing = 0;
-
+			console.log('mouseup')
 			evt.e.stopPropagation();
 			var left = evt.e.offsetX / main.parent.scale;
 			var top = evt.e.offsetY / main.parent.scale;
 			switch (main.shape) {
-				case "rect":
-					{
+				case "cloud":
+					{						
 						var l = main.drawObj.left,
 							t = main.drawObj.top,
 							g_w = main.drawObj.width,
-							g_h = main.drawObj.height;
-
+							g_h = main.drawObj.height;						
+						
 						main.canvas.remove(main.drawObj);
 						var rect = new fabric.Rect({
+							type_of: main.shape,							
 							left:0,
 							top: 0,
-							width: g_w,
-							height: g_h,
+							width: g_w - 1,
+							height: g_h - 1,
 							fill: "transparent",
 							stroke: main.backColor,
 							hasBorders: true
@@ -443,8 +434,7 @@ var classDraw = function (scale, canv_id, width, height) {
 						var textInRect = new fabric.IText("Input text here", {
 							left:0,
 							top: 0,
-							width: g_w,
-							height: g_h,
+							type_of: main.shape,													
 							fontFamily: main.fontFamily,
 							fontStyle: main.fontStyle,
 							fontSize: main.fontSize,
@@ -453,11 +443,11 @@ var classDraw = function (scale, canv_id, width, height) {
 						});
 						main.drawObj = new fabric.Group([rect, textInRect],
 						{	
-							type_of: 'rect',
+							type_of: main.shape,
 							left: l,
 							top: t
-						});				
-						main.canvas.add(main.drawObj);
+						});
+						main.canvas.add(main.drawObj);						
 					}					
 					break;
 				case "text":
@@ -546,15 +536,15 @@ var classDraw = function (scale, canv_id, width, height) {
 			}
 		});
 		main.canvas.on({
-			'object:scaling': function (e) {				
+			'object:scaling': function (e) {
 				var obj = e.target,
 					w = obj.width * obj.scaleX,
 					h = obj.height * obj.scaleY,
 					s = obj.strokeWidth;
 				
-				if (obj.type_of == "rect") { //only group rect
+				if (obj.type_of == "cloud") { //only group rect
 					obj.set({
-						type_of: 'rect',
+						type_of: 'cloud',
 						height: h,
 						width: w,
 						strokeWidth: s
@@ -562,33 +552,34 @@ var classDraw = function (scale, canv_id, width, height) {
 				}
 			}
 		});
-		main.canvas.on({'object:modified': function (e) {				
+		main.canvas.on({'object:modified': function (e) {
+				console.log('modified')
 				var group = e.target,
 					l = group.left,
 					t = group.top,
 					g_w = group.width,
 					g_h = group.height;					
 				
-				if(group.type_of == "rect"){
+				if(group.type_of == "cloud"){
 					var ff = group._objects[1].fontFamily,
 						fs = group._objects[1].fontSize,
 						fst = group._objects[1].fontStyle;
 					
 					main.canvas.remove(group);
 					var rect = new fabric.Rect({
+						type_of: 'cloud',
 						left: 0,
 						top: 0,
-						width: g_w,
-						height: g_h,
+						width: g_w - 1,
+						height: g_h - 1,
 						fill: "transparent",
 						stroke: main.backColor,
 						hasBorders: true
 					});
 					var textInRect = new fabric.IText(group._objects[1].text, {
+						type_of: 'cloud',
 						left:0,
-						top: 0,
-						width: g_w,
-						height: g_h,
+						top: 0,						
 						fontFamily: ff,
 						fontStyle: fst,
 						fontSize: fs,
@@ -597,7 +588,7 @@ var classDraw = function (scale, canv_id, width, height) {
 					});
 					main.drawObj = new fabric.Group([rect, textInRect],
 					{	
-						type_of: 'rect',
+						type_of: 'cloud',
 						left: l,
 						top: t
 					});				
@@ -636,7 +627,7 @@ var classDraw = function (scale, canv_id, width, height) {
 			var top = obj.top;
 
 			switch (obj.type_of) {
-				case "rect":
+				case "cloud":
 					
 					break;
 				case "picture":
@@ -672,8 +663,26 @@ var classDraw = function (scale, canv_id, width, height) {
 		if (main.canvas.getActiveObject()) {
 			main.selectObj = main.canvas.getActiveObject();
 			main.hideProperty();
+			
+			if(main.selectObj.type == 'i-text'){//only cloud text
+				$("#font_area").css("display", "block");
+				$("#font_style").css("display", "block");
+				$("#font_size").css("display", "block");
+			}
 			switch (main.selectObj.type_of) {
-				case "rect":
+				case "cloud":
+					$("#font_area").css("display", "block");
+					$("#font_style").css("display", "block");
+					$("#font_size").css("display", "block");
+					$("#background_area").css("display", "block");
+					break;
+				case "g_text":
+					$("#font_area").css("display", "block");
+					$("#font_style").css("display", "block");
+					$("#font_size").css("display", "block");
+					// $("#background_area").css("display", "block");
+					break;
+				case "g_rect":
 					$("#font_area").css("display", "block");
 					$("#font_style").css("display", "block");
 					$("#font_size").css("display", "block");
@@ -683,14 +692,14 @@ var classDraw = function (scale, canv_id, width, height) {
 					$("#font_area").css("display", "block");
 					$("#font_style").css("display", "block");
 					$("#font_size").css("display", "block");
-					break;
+					break;				
 				case "comment":
 					$("#background_area").css("display", "block");
 					$("#font_area").css("display", "block");
 					$("#font_style").css("display", "block");
 					$("#font_size").css("display", "block");
 					break;
-			}
+			}			
 		}
 	}
 
@@ -718,7 +727,7 @@ var classDraw = function (scale, canv_id, width, height) {
 			case "select":
 				main.hidePopup();
 				break;
-			case "rect":
+			case "cloud":
 				break;
 			case "text":
 				break;
@@ -878,7 +887,7 @@ var classDraw = function (scale, canv_id, width, height) {
 			return;
 
 		switch (main.clipboard.type_of) {
-			case "rect":
+			case "cloud":
 				var cloned_text, cloned_rect, cloned = main.clipboard;
 				cloned_text = fabric.IText.fromObject(cloned._objects[1].toObject());				
 				cloned_text.type = 'text';

@@ -155,13 +155,12 @@ var initEnv = function () {
       }
 
       $("#menu_area .active").removeClass("active");
-      $("#background_area").css("display", "none");
+      // $("#background_area").css("display", "none");
       $("#font_area").css("display", "none");
       $("#font_style").css("display", "none");
       $("#font_size").css("display", "none");
 
-      $(this).addClass("active");
-
+      $(this).addClass("active");      
       switch ($(this).index()) {
         case 0:
           main.drawObj.shape = "select";
@@ -178,7 +177,7 @@ var initEnv = function () {
           break;
         case 2:
           main.drawObj.canvas.isDrawingMode = false;
-          main.drawObj.shape = "rect";
+          main.drawObj.shape = "cloud";
           main.drawObj.setSelectable(false);
           $("#background_area").css("display", "block");
           $("#font_area").css("display", "block");
@@ -245,6 +244,11 @@ var initEnv = function () {
           break;
         case 11:
           $("#background_area").css("display", "block");
+          break;
+        default:
+          $("#font_area").css("display", "block");
+          $("#font_style").css("display", "block");
+          $("#font_size").css("display", "block");          
           break;
       }
     });
@@ -338,12 +342,9 @@ var initEnv = function () {
       var filename = $("#txt_url").val();      
       canvasZoom = main.canvas.getZoom();
       cPosX =
-        ($("#popup_area").offset().left -
-          $(".canvas-container").offset().left) /
-        canvasZoom;
+        ($("#popup_area").offset().left - $(".canvas-container").offset().left) / canvasZoom;
       cPosY =
-        ($("#popup_area").offset().top - $(".canvas-container").offset().top) /
-        canvasZoom;
+        ($("#popup_area").offset().top - $(".canvas-container").offset().top) / canvasZoom;
 
       var param = {
         src: filename,
@@ -408,7 +409,7 @@ var initEnv = function () {
               main.drawObj.drawObj = obj;
               main.drawObj.drawObj.enterEditing();
               break;
-            case "rect":              
+            case "cloud":
               main.drawObj.drawObj = obj;
               var rect = obj._objects[0], text = obj._objects[1];
               
@@ -465,6 +466,7 @@ var initEnv = function () {
                   });                  
                   main.drawObj.canvas.add(grp);
               });
+              // textInRect.enterEditing();
               break;
             case "comment":
               main.drawObj.drawObj = obj;
@@ -816,7 +818,7 @@ var initEnv = function () {
           if (main.drawObj.drawObj) {
             _setForeColor(main.drawObj.drawObj);
           }
-          if (main.drawObj.selectObj) {
+          if (main.drawObj.selectObj) {            
             _setForeColor(main.drawObj.selectObj);
           }
 
@@ -831,9 +833,13 @@ var initEnv = function () {
               __setForeColor(obj);
             }
 
-            function __setForeColor(obj) {
+            function __setForeColor(obj) {              
+              
               if (obj.type) {
                 switch (obj.type) {
+                  case "i-text":
+                    obj.set("fill", main.drawObj.drawColor);
+                    break;
                   case "text":
                     obj.set("fill", main.drawObj.drawColor);
                     break;
@@ -872,13 +878,14 @@ var initEnv = function () {
             }
 
             function __setBackColor(obj) {
-              if (obj.type) {
-                switch (obj.type) {
-                  case "background":
-                    obj.set("fill", main.drawObj.backColor);
-                    break;
-                  case "bg_stroke":
-                    obj.set("stroke", main.drawObj.backColor);
+              if (obj.type_of) {
+                switch (obj.type_of) {                
+                  // case "rect":
+                  //   obj.set("stroke", main.drawObj.backColor);
+                  //   break;
+                  case "cloud":
+                    if(obj.type == 'rect')
+                      obj.set("stroke", main.drawObj.backColor);
                     break;
                 }
               }
@@ -968,6 +975,9 @@ var initEnv = function () {
         function __setFontFamily(obj) {
           if (obj.type) {
             switch (obj.type) {
+              case "i-text":
+                obj.fontFamily = main.drawObj.fontFamily;
+                break;
               case "text":
                 obj.fontFamily = main.drawObj.fontFamily;
                 break;
@@ -1017,6 +1027,9 @@ var initEnv = function () {
         function __setFontStyle(obj) {
           if (obj.type) {
             switch (obj.type) {
+              case "i-text":
+                obj.fontStyle = main.drawObj.fontStyle;
+                break;
               case "text":
                 obj.fontStyle = main.drawObj.fontStyle;
                 break;
@@ -1054,6 +1067,9 @@ var initEnv = function () {
         function __setFontSize(obj) {
           if (obj.type) {
             switch (obj.type) {
+              case "i-text":
+                obj.fontSize = main.drawObj.fontSize;
+                break;
               case "text":
                 obj.fontSize = main.drawObj.fontSize;
                 break;
