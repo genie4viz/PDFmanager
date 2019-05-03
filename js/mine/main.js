@@ -1079,8 +1079,8 @@ var initEnv = function () {
       }
     });
     $('#saveData').on('click', () => {      
-      json_data = JSON.stringify(main.drawObj.canvas.toJSON());
-      main.drawObj.canvas.clear();      
+      json_data = JSON.stringify(main.drawObj.canvas.toJSON(['type_of']));
+      main.drawObj.canvas.clear();
       localStorage.setItem('SaveJSON', json_data);
     })
     $('#loadData').on('click', () => {

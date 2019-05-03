@@ -553,13 +553,13 @@ var classDraw = function (scale, canv_id, width, height) {
 			}
 		});
 		main.canvas.on({'object:modified': function (e) {
-				console.log('modified')
+				
 				var group = e.target,
 					l = group.left,
 					t = group.top,
 					g_w = group.width,
 					g_h = group.height;					
-				
+					console.log('modified', group)
 				if(group.type_of == "cloud"){
 					var ff = group._objects[1].fontFamily,
 						fs = group._objects[1].fontSize,
