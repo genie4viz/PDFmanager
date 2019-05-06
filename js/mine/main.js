@@ -29,7 +29,7 @@ var initEnv = function () {
     //------------------------------------------------------------------------//
 
     //setTimeout(() => {
-      main.initPDF();
+      main.initPDF();      
       main.initEvents();
       main.initUploader();
       main.initColors();
@@ -396,8 +396,9 @@ var initEnv = function () {
             case "cloud":
             
               main.drawObj.drawObj = obj;
-              var cloud = obj._objects[0], text = obj._objects[1]
-                  scaleX = cloud.scaleX, scaleY = cloud.scaleY;
+              var cloud = obj._objects[0], text = obj._objects[1],
+                  angle = obj.angle, scaleX = cloud.scaleX, scaleY = cloud.scaleY;
+              console.log(angle)
               main.drawObj.canvas.remove(obj);
               var new_cloud = new fabric.Path(`
                 M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
@@ -409,6 +410,7 @@ var initEnv = function () {
                 left: obj.left, 
                 top: obj.top,
                 width: cloud.width,
+                angle: angle,
                 height: cloud.height,
                 scaleX: scaleX,
                 scaleY: scaleY,
@@ -422,8 +424,11 @@ var initEnv = function () {
                 top: obj.top + main.drawObj.cloud_sz * scaleY,
                 fontFamily: text.fontFamily,
                 fontStyle: text.fontStyle,
+                angle: angle,
                 fontSize: text.fontSize,
                 fill: text.fill,
+                lockMovementX: true,
+                lockMovementY: true,
                 hasBorders: false
               });
               textInRect.setControlsVisibility({bl: false, br: false, mb: false, ml: false, mr: false, mt: false, tl: false, tr: false, mtr: false});
@@ -442,7 +447,7 @@ var initEnv = function () {
                     left: cloud.left, 
                     top: cloud.top,
                     width: cloud.width,
-                    height: cloud.height,
+                    height: cloud.height,                    
                     scaleX: scaleX,
                     scaleY: scaleY,
                     strokeWidth: cloud.strokeWidth,
@@ -455,7 +460,7 @@ var initEnv = function () {
                     top: cloud.top + main.drawObj.cloud_sz * scaleY,
                     fontFamily: text.fontFamily,
                     fontStyle: text.fontStyle,
-                    fontSize: text.fontSize,
+                    fontSize: text.fontSize,                    
                     fill: text.fill,
                     hasBorders: false
                   });
@@ -472,7 +477,7 @@ var initEnv = function () {
               break;
             case "comment":
               main.drawObj.drawObj = obj;
-              var rect = obj._objects[0], text = obj._objects[1];
+              var rect = obj._objects[0], text = obj._objects[1], angle = obj.angle;
               main.drawObj.canvas.remove(obj);
               var new_rect = new fabric.Rect({
                 left: obj.left,
@@ -480,6 +485,7 @@ var initEnv = function () {
                 width: obj.width,
                 height: obj.height,
                 fill: rect.fill,
+                angle: angle,
                 stroke: rect.stroke,
                 hasBorders: true
               });  
@@ -488,6 +494,7 @@ var initEnv = function () {
                 top: obj.top,
                 fontFamily: text.fontFamily,
                 fontStyle: text.fontStyle,
+                angle: angle,
                 fontSize: text.fontSize,
                 fill: text.fill,
                 hasBorders: false
@@ -503,7 +510,7 @@ var initEnv = function () {
                     left: 0,
                     top: 0,
                     width: obj.width,
-                    height: obj.height,
+                    height: obj.height,                    
                     fill: obj.type_of == "cloud" ? "transparent" : rect.fill,
                     stroke: rect.stroke,
                     hasBorders: true
@@ -512,7 +519,7 @@ var initEnv = function () {
                     left: 0,
                     top: 0,
                     fontFamily: text.fontFamily,
-                    fontStyle: text.fontStyle,
+                    fontStyle: text.fontStyle,                    
                     fontSize: text.fontSize,
                     fill: text.fill,
                     hasBorders: false
@@ -548,6 +555,11 @@ var initEnv = function () {
           main.drawObj.paste(xPos / zoom, yPos / zoom);
           break;
         case 3:
+          var obj = main.drawObj.canvas.getActiveObject();
+          if(obj.type_of == 'picture'){
+            var imgObj = main.drawObj.getObjectById(obj.img_id);
+            main.drawObj.canvas.remove(imgObj);
+          }
           main.drawObj.delete();
           main.hidePopup();
           break;
@@ -734,77 +746,37 @@ var initEnv = function () {
       document.selection.empty();
     }
   };
-
   main.initUploader = function () {
-    var btn = document.getElementById("btn_file_upload");    
-    var uploader = new ss.SimpleUpload({
-      button: btn,
-      url: "php/file_upload.php",
-      name: "uploadfile",
-      multipart: true,
-      hoverClass: "hover",
-      focusClass: "focus",
-      responseType: "json",
 
-      onComplete: function (filename, response) {
-        cPosX =
-          ($("#popup_area").offset().left -
-            $(".canvas-container").offset().left) /
-          canvasZoom;
-        cPosY =
-          ($("#popup_area").offset().top -
-            $(".canvas-container").offset().top) /
-          canvasZoom;
+		var btn1 = document.getElementById('btn_attach_upload');
+		var uploader1 = new ss.SimpleUpload(
+			{
+				button: btn1,
+				url: 'php/file_upload.php',
+				name: 'uploadfile',
+				multipart: true,
+				hoverClass: 'hover',
+				focusClass: 'focus',
+				responseType: 'json',
 
-        var param = {
-          src: "tmp/" + filename,
-          selectable: true,
-          isFront: 1,
-          left: cPosX,
-          top: cPosY
-        };
+				onComplete: function (filename, response) {
+					$("#popup_attach object").attr('data', "tmp/" + filename);
 
-        main.drawObj.drawObj.src = "tmp/" + filename;
-        $("#popup_image img").attr("src", "tmp/" + filename);
-        $("#popup_image img").css("width", "320px");
-        $("#popup_image img").css("height", "240px");
-        main.hidePopup();
-        main.showPopup("popup_image");
-      },
-      onError: function () {
-        console.log("error");
-      }
-    });
+					$("#attach_file").attr("href", "tmp/" + filename);
+					$("#attach_file").html("File : " + filename);
 
-    var btn1 = document.getElementById("btn_attach_upload");
-    var uploader1 = new ss.SimpleUpload({
-      button: btn1,
-      url: "php/file_upload.php",
-      name: "uploadfile",
-      multipart: true,
-      hoverClass: "hover",
-      focusClass: "focus",
-      responseType: "json",
+					main.drawObj.drawObj.src = "tmp/" + filename;
+					main.drawObj.drawObj.file = filename;
+					// $("#popup_image img").attr("src", "tmp/" + filename);
 
-      onComplete: function (filename, response) {
-        $("#popup_attach object").attr("data", "tmp/" + filename);
-
-        $("#attach_file").attr("href", "tmp/" + filename);
-        $("#attach_file").html("File : " + filename);
-
-        main.drawObj.drawObj.src = "tmp/" + filename;
-        main.drawObj.drawObj.file = filename;
-        // $("#popup_image img").attr("src", "tmp/" + filename);
-
-        // main.hidePopup();
-        // main.showPopup("popup_image");
-      },
-      onError: function () {
-        console.log("error");
-      }
-    });
-  };
-
+					// main.hidePopup();
+					// main.showPopup("popup_image");
+				},
+				onError: function () {
+					console.log('error');
+				}
+			});
+	}
   main.initColors = function () {
     $("#color_area").css("background-color", main.drawColor);
     $("#color_background").css("background-color", main.backColor);
@@ -884,10 +856,11 @@ var initEnv = function () {
 
             function __setBackColor(obj) {
               if (obj.type_of) {
-                switch (obj.type_of) {                
-                  // case "rect":
-                  //   obj.set("stroke", main.drawObj.backColor);
-                  //   break;
+                switch (obj.type_of) {
+                  case "comment":
+                    if(obj.type == 'rect')
+                      obj.set("fill", main.drawObj.backColor);
+                    break;
                   case "cloud":
                     if(obj.type == 'path')
                       obj.set("stroke", main.drawObj.backColor);
@@ -1085,18 +1058,46 @@ var initEnv = function () {
       }
     });
     $('#saveData').on('click', () => {      
-      json_data = JSON.stringify(main.drawObj.canvas.toJSON(['type_of']));
+      json_data = JSON.stringify(main.drawObj.canvas.toDatalessJSON(['type_of','id', 'img_id', 'img_data', 'lockMovementX', 'lockMovementY']));
       main.drawObj.canvas.clear();
       localStorage.setItem('SaveJSON', json_data);
     })
     $('#loadData').on('click', () => {
-      var json = localStorage.getItem('SaveJSON');      
+      var json = localStorage.getItem('SaveJSON');
       var canvas = main.drawObj.canvas;      
       canvas.loadFromJSON(JSON.parse(json), canvas.renderAll.bind(canvas), function (o, object) {        
       });
     });
-    $("li #btn_file_upload").on("click", () => {
-      console.log('heyd')
+    $('#btn_file_upload').click(function(){
+      $('#file_uploader').click();      
+    });
+    $('#file_uploader').change(function(e){
+      if($(this).val() == "") return false;      
+      var file = e.target.files[0];
+      var reader = new FileReader();
+      reader.onload = function (f) {
+        var data = f.target.result;        
+        var new_id = 'picture_circle_' + main.drawObj.getPictureCounts();
+        fabric.Image.fromURL(data, function (img) {          
+          var oImg = img.set({
+            type_of: 'picture_circle',
+            id: new_id,
+            left: main.drawObj.drawObj.left, 
+            top: main.drawObj.drawObj.top, 
+            width: img.width,
+            height: img.height,
+            lockMovementX: true,
+            lockMovementY: true
+          }).scale(0.3);
+          oImg.setControlsVisibility({bl: false, br: false, mb: false, ml: false, mr: false, mt: false, tl: false, tr: false, mtr: false});
+          main.drawObj.drawObj.img_data = data;
+          main.drawObj.drawObj.img_id = new_id;          
+          main.drawObj.canvas.add(oImg).renderAll();
+        });
+        main.hidePopup();
+        $('#file_uploader').val("");
+      };
+      reader.readAsDataURL(file);      
     });
   };
 };

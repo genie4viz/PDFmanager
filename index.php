@@ -60,14 +60,14 @@
 		</div>
 		<div id="popup_picture" class="popup">
 			<ul>
-				<li id="btn_file_upload">
+				<li id="btn_file_upload" >
 					Image from file
-				</li>
+				</li>				
 				<!--li id="btn_insert_url">
 					Image from URL
 				</li-->
 			</ul>
-		</div>
+		</div>		
 		<div id="popup_attach" class="popup">
 			<p id="btn_attach_upload">Upload a File</p>
 			<object></object>
@@ -87,9 +87,7 @@
 				<label><input type="radio" name="radio_unit" value="ft">Feet</label>
 				<input type="button" id="btn_set" value="Set Size">
 			</section>
-		</div>
-		<div id="popup_image" class="popup">
-			<img src="#">
+			<input type='file' id='file_uploader' style="display:none" />
 		</div>
 	</div>
 	<div id="context_menu">

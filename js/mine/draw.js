@@ -89,6 +89,8 @@ var classDraw = function (scale, canv_id, width, height) {
 			main.canvas.freeDrawingBrush.color = main.drawColor;
 			evt.e.stopPropagation();
 
+			main.removeObjectsByTypeOf('picture_circle');
+
 			if (evt.target)
 				main.onObjectSelected();
 
@@ -112,8 +114,6 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{
-						
-						// main.drawObj = new fabric.Path(main.getCloudString());
 						main.drawObj = new fabric.Path(`
 							M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
 							C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
@@ -242,6 +242,7 @@ var classDraw = function (scale, canv_id, width, height) {
 				case "picture":
 					{
 						main.drawObj = new fabric.Circle({
+							type_of: main.shape,
 							radius: 10,
 							strokeWidth: 1,
 							left: left,
@@ -265,7 +266,6 @@ var classDraw = function (scale, canv_id, width, height) {
 						$("#popup_area").css("top", hPosY + "px");
 						main.showPopup("popup_picture");
 					}
-
 					break;
 				case "attach":
 					{
@@ -396,6 +396,11 @@ var classDraw = function (scale, canv_id, width, height) {
 						});
 					}
 					break;
+				case "picture":
+					{
+
+					}
+					break;
 			}
 
 			main.drawObj.setCoords();
@@ -406,6 +411,7 @@ var classDraw = function (scale, canv_id, width, height) {
 			main.isDrawing = 0;
 			console.log('mouseup')
 			evt.e.stopPropagation();
+			
 			var left = evt.e.offsetX / main.parent.scale;
 			var top = evt.e.offsetY / main.parent.scale;
 			switch (main.shape) {
@@ -420,8 +426,7 @@ var classDraw = function (scale, canv_id, width, height) {
 							scaleX = obj.type == 'path' ? obj.scaleX : obj._objects[0].scaleX,
 							scaleY = obj.type == 'path' ? obj.scaleY : obj._objects[0].scaleY;
 						
-						main.canvas.remove(main.drawObj);
-						console.log(strokeWidth)
+						main.canvas.remove(main.drawObj);						
 						var cloud = new fabric.Path(`
 							M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
 							C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
@@ -460,8 +465,7 @@ var classDraw = function (scale, canv_id, width, height) {
 				case "text":
 					break;
 				case "comment":
-					{
-						console.log('pass?')
+					{	
 						var l = main.drawObj.left,
 							t = main.drawObj.top,
 							g_w = main.drawObj.width,
@@ -568,8 +572,10 @@ var classDraw = function (scale, canv_id, width, height) {
 			}
 		});
 		main.canvas.on({'object:modified': function (e) {
-				console.log('modified')
+				
+				console.log('modified')				
 				var group = e.target;
+
 				if(group.type_of == 'cloud' || group.type_of == 'comment'){
 					var	l = group.left,
 						t = group.top,
@@ -678,8 +684,8 @@ var classDraw = function (scale, canv_id, width, height) {
 
 	main.onObjectSelected = function () {
 		main.is_select = 1;
-		main.hidePopup();
-
+		// main.hidePopup();
+		
 		if (main.canvas.getActiveObject()) {
 			var obj = main.canvas.getActiveObject();
 			var left = obj.left;
@@ -687,14 +693,23 @@ var classDraw = function (scale, canv_id, width, height) {
 
 			switch (obj.type_of) {
 				case "cloud":
-					
 					break;
 				case "picture":
-					$("#popup_image img").attr("src", obj.src)
-					$("#popup_area").css("left", left + "px");
-					$("#popup_area").css("top", top + "px");
-
-					main.showPopup("popup_image");
+					console.log(obj, 'selected')
+					fabric.Image.fromURL(obj.img_data, function (img) {          
+						var oImg = img.set({
+						  type_of: 'picture_circle',
+						  id: obj.img_id,
+						  left: obj.left, 
+						  top: obj.top, 
+						  width: img.width,
+						  height: img.height,
+						  lockMovementX: true,
+						  lockMovementY: true
+						}).scale(0.3);
+						oImg.setControlsVisibility({bl: false, br: false, mb: false, ml: false, mr: false, mt: false, tl: false, tr: false, mtr: false});						
+						main.canvas.add(oImg).renderAll();
+					});
 					break;
 				case "attach":
 					$("#popup_area").css("left", left + "px");
@@ -948,6 +963,7 @@ var classDraw = function (scale, canv_id, width, height) {
 				var copied = new fabric.Group([cloned_rect, cloned_text], {
 					left: x,
 					top: y,
+					angle: main.clipboard.angle,
 					type_of: main.clipboard.type_of
 				});				
 				main.canvas.add(copied);
@@ -1012,8 +1028,35 @@ var classDraw = function (scale, canv_id, width, height) {
 		}
 		return retStr;
 	}
+	main.getObjectById = function(id){
+		var retObj = null;
+		main.canvas.getObjects().forEach(function(o) {
+			if(o.id === id) {
+				retObj = o;
+			}
+		})
+		return retObj;
+	}
+	main.removeObjectsByTypeOf = function(type_of){		
+		main.canvas.getObjects().forEach(function(o) {
+			if(o.type_of === type_of) {
+				main.canvas.remove(o);
+			}
+		})
+	}
+	main.getPictureCounts = function(){
+		var counts = 0;		
+		main.canvas.getObjects().forEach(function(o) {
+			if(o.type_of == 'picture') {
+				counts++;
+			}
+		})
+		return counts;
+	}
+	
 	main.init();
 };
+
 var groupDblClick = function (obj, handler) {
     return function () {
         if (obj.clicked) handler(obj);
