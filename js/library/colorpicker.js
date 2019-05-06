@@ -205,15 +205,18 @@
 				var cal = $('#' + $(this).data('colorpickerId'));
 				cal.data('colorpicker').onBeforeShow.apply(this, [cal.get(0)]);
 				var pos = $(this).offset();
+				
+				var abs_pos = $(this).position();
+				console.log(abs_pos.top, 'paa')
 				var viewPort = getViewport();
-				var top = pos.top + this.offsetHeight;
-				var left = pos.left;
+				var top = abs_pos.top + this.offsetHeight + 57;
+				var left = abs_pos.left + 10;
 				if (top + 176 > viewPort.t + viewPort.h) {
 					top -= this.offsetHeight + 176;
 				}
-				if (left + 356 > viewPort.l + viewPort.w) {
-					left -= 356;
-				}
+				// if (left + 356 > viewPort.l + viewPort.w) {
+				// 	left -= 356;
+				// }
 				cal.css({left: left + 'px', top: top + 'px'});
 				if (cal.data('colorpicker').onShow.apply(this, [cal.get(0)]) != false) {
 					cal.show();

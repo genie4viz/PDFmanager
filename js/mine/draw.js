@@ -12,6 +12,8 @@ var classDraw = function (scale, canv_id, width, height) {
 	main.canvHeight = height;
 	main.canvas = null;
 
+
+	main.cloud_sz = 25;
 	main.isDrawing = 0;
 	main.shape = null;
 	main.drawObj = null;
@@ -33,8 +35,8 @@ var classDraw = function (scale, canv_id, width, height) {
 	};
 	main.arrowSize = 10;
 
-	main.textWidth = 200;
-	main.textHeight = 150;
+	main.textWidth = 150;
+	main.textHeight = 90;
 
 	main.arrowType = 0;
 	main.scale = scale;
@@ -77,6 +79,10 @@ var classDraw = function (scale, canv_id, width, height) {
 
 	main.initEvent = function () {
 		main.canvas.on("mouse:down", function (evt) {
+			
+			$("#color_area").parent().ColorPickerHide();
+			$("#color_background").parent().ColorPickerHide();			
+			
 			var left = evt.e.offsetX / main.parent.scale;
 			var top = evt.e.offsetY / main.parent.scale;
 
@@ -106,16 +112,24 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{
-						main.drawObj = new fabric.Rect({
+						
+						// main.drawObj = new fabric.Path(main.getCloudString());
+						main.drawObj = new fabric.Path(`
+							M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+							C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+							C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+							C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+						`,{
 							type_of: main.shape,
-							width: 20,
-							height: 20,
+							left: left, 
+							top: top,							
+							scaleX: 1,
+							scaleY: 1,
 							fill: "transparent",
+							strokeWidth: 2,
 							stroke: main.backColor,
-							left: left,
-							top: top,
-							hasBorders: true
-						});
+						});						
+						
 						main.canvas.add(main.drawObj);
 					}
 					break;
@@ -172,34 +186,17 @@ var classDraw = function (scale, canv_id, width, height) {
 					break;
 				case "comment":
 					{
-						bg = new fabric.Rect({
-							type: "background",
-							width: main.textWidth,
-							height: main.textHeight,
-							fill: main.backColor,
-							stroke: "black",
-							strokeWidth: 1,
-							selectable: false,
-							hasBorders: true,
-						});
-						text = new fabric.Textbox("", {
-							type: "text",
-							fontFamily: main.fontFamily,
-							fontSize: main.fontSize,
-							fontStyle: main.fontStyle,
-							fill: main.drawColor,
-							selectable: false,
-							breakWords: true
-						});
-
-						main.drawObj = new fabric.Group([bg, text], {
+						main.drawObj = new fabric.Rect({
 							type_of: main.shape,
+							width: main.textWidth,
+							height: main.textHeight,							
+							stroke: 'black',
+							fill: main.backColor,
 							left: left,
 							top: top,
-							lockScalingY: true,
-							selectable: false,
+							hasBorders: true
 						});
-						main.canvas.add(main.drawObj);
+						main.canvas.add(main.drawObj);						
 					}
 					break;
 				case "ruler":
@@ -322,11 +319,12 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{
-						main.drawObj.left = Math.min(left, main.sPos.x);
-						main.drawObj.top = Math.min(top, main.sPos.y);
-
-						main.drawObj.width = Math.abs(left - main.sPos.x);
-						main.drawObj.height = Math.abs(top - main.sPos.y);
+						main.drawObj.set({
+							left: Math.min(left, main.sPos.x),
+							top: Math.min(top, main.sPos.y),							
+							scaleX: Math.abs(left - main.sPos.x)/(main.textWidth + main.cloud_sz * 2),
+							scaleY: Math.abs(top - main.sPos.y)/(main.textHeight + main.cloud_sz * 2)
+						});						
 					}
 					break;
 				case "arrow":
@@ -376,9 +374,7 @@ var classDraw = function (scale, canv_id, width, height) {
 							left: line_dist / (-2)
 						});
 						main.drawObj._objects[0].setCoords();
-
-
-
+						
 						if (main.rulerScale) {
 							main.rulerLabel(line_dist, main.rulerScale);
 							main.drawObj._objects[1].set({
@@ -415,10 +411,61 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{						
+						var obj = main.drawObj,
+							l = obj.left,
+							t = obj.top,
+							g_w = obj.width,
+							g_h = obj.height,
+							strokeWidth = obj.type == 'path' ? obj.strokeWidth : obj._objects[0].strokeWidth,
+							scaleX = obj.type == 'path' ? obj.scaleX : obj._objects[0].scaleX,
+							scaleY = obj.type == 'path' ? obj.scaleY : obj._objects[0].scaleY;
+						
+						main.canvas.remove(main.drawObj);
+						console.log(strokeWidth)
+						var cloud = new fabric.Path(`
+							M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+							C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+							C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+							C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+						`,{
+							type_of: main.shape,
+							left: 0, 
+							top: 0,
+							scaleX: scaleX,
+							scaleY: scaleY,
+							fill: "transparent",
+							strokeWidth: strokeWidth,
+							stroke: main.backColor,
+						});
+			
+						var textInRect = new fabric.IText("Input text here", {
+							left: main.cloud_sz * scaleX,
+							top:  main.cloud_sz * scaleY,
+							type_of: main.shape,													
+							fontFamily: main.fontFamily,
+							fontStyle: main.fontStyle,
+							fontSize: main.fontSize,
+							fill: main.drawColor,
+							selectable: false
+						});
+						main.drawObj = new fabric.Group([cloud, textInRect],
+						{	
+							type_of: main.shape,
+							left: l,
+							top: t,
+						});
+						main.canvas.add(main.drawObj);
+					}					
+					break;
+				case "text":
+					break;
+				case "comment":
+					{
+						console.log('pass?')
 						var l = main.drawObj.left,
 							t = main.drawObj.top,
 							g_w = main.drawObj.width,
-							g_h = main.drawObj.height;						
+							g_h = main.drawObj.height;
 						
 						main.canvas.remove(main.drawObj);
 						var rect = new fabric.Rect({
@@ -427,14 +474,14 @@ var classDraw = function (scale, canv_id, width, height) {
 							top: 0,
 							width: g_w - 1,
 							height: g_h - 1,
-							fill: "transparent",
-							stroke: main.backColor,
+							fill: main.backColor,
+							stroke: 'black',
 							hasBorders: true
 						});
 						var textInRect = new fabric.IText("Input text here", {
 							left:0,
 							top: 0,
-							type_of: main.shape,													
+							type_of: main.shape,
 							fontFamily: main.fontFamily,
 							fontStyle: main.fontStyle,
 							fontSize: main.fontSize,
@@ -447,72 +494,8 @@ var classDraw = function (scale, canv_id, width, height) {
 							left: l,
 							top: t
 						});
-						main.canvas.add(main.drawObj);						
-					}					
-					break;
-				case "text":
-					break;
-				case "comment":
-					{
-						main.drawObj.setControlsVisibility({
-							mt: false, // middle top disable
-							mb: false, // midle bottom
-							ml: false, // middle left
-							mr: false, // middle right
-						});
-						canvasZoom = main.canvas.getZoom();
-						hPosX = $('.canvas-container').offset().left + main.drawObj.left * canvasZoom;
-						hPosY = $('.canvas-container').offset().top + main.drawObj.top * canvasZoom;
-						hWidth = main.drawObj._objects[0].width * canvasZoom;
-						hHeight = main.drawObj._objects[0].height * canvasZoom;
-
-						$("#popup_text textarea").css({
-							"font-size": main.fontSize * canvasZoom
-						});
-						$("#popup_text textarea").css({
-							"padding": 5 * canvasZoom + "px"
-						});
-						$("#popup_text textarea").css({
-							"font-family": main.fontFamily
-						});
-						if (main.fontStyle == "Bold") {
-							$("#popup_text textarea").css({
-								"font-style": "normal"
-							});
-							$("#popup_text textarea").css({
-								"font-weight": main.fontStyle
-							});
-						} else {
-							$("#popup_text textarea").css({
-								"font-style": main.fontStyle
-							});
-							$("#popup_text textarea").css({
-								"font-weight": "normal"
-							});
-						}
-
-						$("#popup_text textarea").css({
-							"color": main.drawColor
-						});
-
-						$("#popup_area").css("left", hPosX + "px");
-						$("#popup_area").css("top", hPosY + "px");
-						$("#popup_text textarea").focus();
-						$("#popup_text textarea").css("width", hWidth + "px");
-						$("#popup_text textarea").css("height", hHeight + "px");
-
-						var resizeObj = main.drawObj._objects[0];
-
-						$("#popup_text textarea").mouseup(function () {
-							canvasZoom = main.canvas.getZoom();
-							width = $(this).width(); // think the padding (3px)
-							height = $(this).height(); // think the padding (3px)
-							resizeObj.width = width / canvasZoom + 10;
-							resizeObj.height = height / canvasZoom + 10;
-							main.canvas.renderAll();
-						});
-
-						main.showPopup("popup_text");
+						console.log(main.drawObj, 'from commment')
+						main.canvas.add(main.drawObj);	
 					}
 					break;
 				case "ruler":
@@ -535,66 +518,142 @@ var classDraw = function (scale, canv_id, width, height) {
 					break;
 			}
 		});
-		main.canvas.on({
-			'object:scaling': function (e) {
-				var obj = e.target,
-					w = obj.width * obj.scaleX,
-					h = obj.height * obj.scaleY,
-					s = obj.strokeWidth;
+		main.canvas.on({'object:scaling': function (e) {
 				
-				if (obj.type_of == "cloud") { //only group rect
-					obj.set({
-						type_of: 'cloud',
-						height: h,
-						width: w,
-						strokeWidth: s
-					});
-				}
+				var group = e.target,
+					w = group.width * group.scaleX,
+					h = group.height * group.scaleY,
+					s = group.strokeWidth;
+
+				switch( group.type_of){
+					case "cloud":
+						var scaleX = w/group._objects[0].width,
+							scaleY = h/group._objects[0].height; 
+						group._objects[0].set({
+						 	left: -w/2,
+							top: -h/2,
+							scaleX: scaleX,
+							scaleY: scaleY
+						})
+						group._objects[1].set({
+							left: -w/2 + main.cloud_sz * scaleX,
+							top: -h/2 + main.cloud_sz * scaleY
+						})
+						group.set({							
+							height: h,
+							width: w							
+						});
+					break;
+					case "comment":
+						group._objects[0].set({
+							left: -w/2,
+							top: -h/2,
+							width: w,
+							height: h
+						})
+						group._objects[1].set({
+							left: -w/2,
+							top: -h/2,
+						})
+						group.set({
+							type_of: 'comment',
+							height: h,
+							width: w,
+							padding: 0,
+							strokeWidth: s
+						});
+						
+					break;
+				}				
 			}
 		});
 		main.canvas.on({'object:modified': function (e) {
-				
-				var group = e.target,
-					l = group.left,
-					t = group.top,
-					g_w = group.width,
-					g_h = group.height;					
-					console.log('modified', group)
-				if(group.type_of == "cloud"){
-					var ff = group._objects[1].fontFamily,
+				console.log('modified')
+				var group = e.target;
+				if(group.type_of == 'cloud' || group.type_of == 'comment'){
+					var	l = group.left,
+						t = group.top,
+						g_w = group.width,
+						g_h = group.height,
+						angle = group.angle,
+						strokeWidth = group._objects[0].strokeWidth,
+						scaleX = group._objects[0].scaleX,
+						scaleY = group._objects[0].scaleY,
+						ff = group._objects[1].fontFamily,
 						fs = group._objects[1].fontSize,
 						fst = group._objects[1].fontStyle;
 					
 					main.canvas.remove(group);
-					var rect = new fabric.Rect({
-						type_of: 'cloud',
-						left: 0,
-						top: 0,
-						width: g_w - 1,
-						height: g_h - 1,
-						fill: "transparent",
-						stroke: main.backColor,
-						hasBorders: true
-					});
-					var textInRect = new fabric.IText(group._objects[1].text, {
-						type_of: 'cloud',
-						left:0,
-						top: 0,						
-						fontFamily: ff,
-						fontStyle: fst,
-						fontSize: fs,
-						fill: main.drawColor,
-						selectable: false
-					});
-					main.drawObj = new fabric.Group([rect, textInRect],
-					{	
-						type_of: 'cloud',
-						left: l,
-						top: t
-					});				
-					main.canvas.add(main.drawObj);
-				}				
-			}			
+					switch( group.type_of){
+						case 'cloud':
+							var cloud = new fabric.Path(`
+								M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+								C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+								C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+								C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+							`,{
+								type_of: 'cloud',
+								left: 0, 
+								top: 0,
+								scaleX: scaleX,
+								scaleY: scaleY,
+								fill: "transparent",
+								strokeWidth: strokeWidth,
+								stroke: main.backColor,
+							});
+							
+							var textInRect = new fabric.IText(group._objects[1].text, {
+								type_of: 'cloud',
+								left: main.cloud_sz * scaleX,
+								top: main.cloud_sz * scaleY,
+								fontFamily: ff,
+								fontStyle: fst,
+								fontSize: fs,
+								fill: main.drawColor,
+								selectable: false
+							});
+							main.drawObj = new fabric.Group([cloud, textInRect],
+							{	
+								type_of: 'cloud',
+								angle: angle,
+								left: l,
+								top: t
+							});				
+							main.canvas.add(main.drawObj);
+						break;
+						case 'comment':
+							var rect = new fabric.Rect({
+								type_of: 'comment',
+								left: 0,
+								top: 0,
+								width: g_w - 1,
+								height: g_h - 1,
+								fill: main.backColor,
+								stroke: 'black',
+								hasBorders: true
+							});
+							var textInRect = new fabric.IText(group._objects[1].text, {
+								type_of: 'comment',
+								left:0,
+								top: 0,						
+								fontFamily: ff,
+								fontStyle: fst,
+								fontSize: fs,
+								fill: main.drawColor,
+								selectable: false
+							});
+							main.drawObj = new fabric.Group([rect, textInRect],
+							{	
+								type_of: 'comment',
+								angle: angle,
+								left: l,
+								top: t
+							});				
+							main.canvas.add(main.drawObj);
+						break;
+					}				
+				}	
+			}		
 		});		
 	}
 
@@ -731,14 +790,7 @@ var classDraw = function (scale, canv_id, width, height) {
 				break;
 			case "text":
 				break;
-			case "comment":
-				var text = $("#popup_text textarea").val();
-				$("#popup_text textarea").val("");
-
-				text_obj = main.drawObj._objects[1];
-				text_obj.text = text;
-				main.setCoords(main.drawObj);
-
+			case "comment":				
 				break;
 			case "picture":
 
@@ -888,11 +940,10 @@ var classDraw = function (scale, canv_id, width, height) {
 
 		switch (main.clipboard.type_of) {
 			case "cloud":
+			case "comment":
 				var cloned_text, cloned_rect, cloned = main.clipboard;
-				cloned_text = fabric.IText.fromObject(cloned._objects[1].toObject());				
-				cloned_text.type = 'text';
+				cloned_text = fabric.IText.fromObject(cloned._objects[1].toObject());
 				cloned_rect = cloned._objects[0].clone();
-				cloned_rect.type = 'rect';
 
 				var copied = new fabric.Group([cloned_rect, cloned_text], {
 					left: x,
@@ -910,24 +961,7 @@ var classDraw = function (scale, canv_id, width, height) {
 				copied.type_of = 'text';
 				main.canvas.add(copied);
 				copied.setCoords();
-				break;
-			case "comment":
-				var bg = main.clipboard._objects[0, 0].clone();
-				bg.left = x;
-				bg.top = y;
-
-				var txt = main.clipboard._objects[0, 1].clone();
-				txt.left = x + 5;
-				txt.top = y + 5;
-
-				var copied = new fabric.Group([bg, txt], {
-					left: bg.left,
-					top: bg.top,
-					type: main.clipboard.type_of
-				});
-				main.canvas.add(copied);
-				copied.setCoords();
-				break;
+				break;			
 		}				
 		main.canvas.renderAll();
 	}
@@ -967,117 +1001,19 @@ var classDraw = function (scale, canv_id, width, height) {
 		$("#popup_area").css("display", "none");
 		$("#popup_area").find(".active").removeClass("active");
 	}
-
+	main.getCloudString = function(row = 5, col = 3){
+		var sz = main.cloud_sz;
+		var retStr = `M0 ${sz}`;
+		for(var i = 0; i < row; i++){
+			retStr += `C ${sz * i} 0, ${sz * (i + 1)} 0, ${sz * (i + 1)} ${sz}`;
+		}		
+		for(var j = 0; j < col; j++){
+			retStr += `C ${sz * row} ${sz}, ${sz * (row + 1)} ${sz}, ${sz * (row + 1)} ${sz}, ${sz * (row + 1)} ${sz}`;
+		}
+		return retStr;
+	}
 	main.init();
 };
-
-fabric.Textbox.prototype._wrapLine = function (ctx, text, lineIndex) {
-	// 	var lineWidth = 0,
-	// 		lines = [],
-	// 		line = '',
-	// 		words = text.split(' '),
-	// 		word = '',
-	// 		letter = '',
-	// 		offset = 0,
-	// 		infix = ' ',
-	// 		wordWidth = 0,
-	// 		infixWidth = 0,
-	// 		letterWidth = 0,
-	// 		largestWordWidth = 0;
-
-	// 	for (var i = 0; i < words.length; i++) {
-	// 		word = words[i];
-	// 		wordWidth = this._measureText(ctx, word, lineIndex, offset);
-	// 		lineWidth += infixWidth;
-
-	// 		// Break Words if wordWidth is greater than textbox width
-	// 		if (this.breakWords && wordWidth > this.width) {
-	// 			line += infix;
-	// 			var wordLetters = word.split('');
-	// 			while (wordLetters.length) {
-	// 				letterWidth = this._getWidthOfChar(ctx, wordLetters[0], lineIndex, offset);
-	// 				if (lineWidth + letterWidth > this.width) {
-	// 					lines.push(line);
-	// 					line = '';
-	// 					lineWidth = 0;
-	// 				}
-	// 				line += wordLetters.shift();
-	// 				offset++;
-	// 				lineWidth += letterWidth;
-	// 			}
-	// 			word = '';
-	// 		} else {
-	// 			lineWidth += wordWidth;
-	// 		}
-
-	// 		if (lineWidth >= this.width && line !== '') {
-	// 			lines.push(line);
-	// 			line = '';
-	// 			lineWidth = wordWidth;
-	// 		}
-
-	// 		if (line !== '' || i === 1) {
-	// 			line += infix;
-	// 		}
-	// 		line += word;
-	// 		offset += word.length;
-	// 		infixWidth = this._measureText(ctx, infix, lineIndex, offset);
-	// 		offset++;
-
-	// 		// keep track of largest word
-	// 		if (wordWidth > largestWordWidth && !this.breakWords) {
-	// 			largestWordWidth = wordWidth;
-	// 		}
-	// 	}
-
-	// 	i && lines.push(line);
-
-	// 	if (largestWordWidth > this.dynamicMinWidth) {
-	// 		this.dynamicMinWidth = largestWordWidth;
-	// 	}
-
-	// 	return lines;
-};
-
-//customized Bordered TextBox
-fabric.BorderTextBox = fabric.util.createClass(fabric.Textbox, {
-	type: 'bordertextbox',
-	initialize: function (element, options) {
-		options = options || {};
-		this.callSuper('initialize', element, options);
-		this.set('width', options.width || '');
-		this.set('height', options.height || '');
-		this.width = options.width;
-		this.height = options.height;
-		this.set('fill', options.fill);
-	},
-	_render: function (ctx) {
-		var w = this.width,
-			h = this.height,
-			x = -this.width / 2,
-			y = -this.height / 2;
-
-		ctx.beginPath();
-		ctx.moveTo(x, y);
-		ctx.lineTo(x + w, y);
-		ctx.lineTo(x + w, y + h);
-		ctx.lineTo(x, y + h);
-		ctx.lineTo(x, y);
-		ctx.closePath();
-		ctx.fill = this.textColor;
-		ctx.font = this.fontSize + " " + this.fontFamily;
-		var stroke = ctx.strokeStyle;
-		ctx.strokeStyle = this.borderColor;
-		ctx.stroke();
-		ctx.strokeStyle = stroke;
-
-		// ctx.strokeStyle = stroke;
-		// ctx.fontSize = this.fontSize;		
-		// ctx.width = this.width;
-		ctx.height = this.height;
-		ctx.fontFamily = this.fontFamily;
-	}
-});
 var groupDblClick = function (obj, handler) {
     return function () {
         if (obj.clicked) handler(obj);

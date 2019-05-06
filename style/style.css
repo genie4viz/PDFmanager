@@ -124,7 +124,7 @@ body
 .canvas_fabric
 {
 	position: absolute;
-	z-index: 999;
+	z-index: 50;
 }
 
 .page
@@ -320,7 +320,7 @@ body
     bottom: 10px;
     left: 10px;
     background: #1e1e20;
-    z-index: 999;
+    z-index: 99;
 }
 
 #menu_other dd
@@ -355,7 +355,7 @@ body
     bottom: 10px;
     left: 130px;
     background: #1e1e20;
-    z-index: 999;
+    z-index: 99;
 }
 
 #tool_area dd

@@ -142,25 +142,21 @@ var initEnv = function () {
 
       if (!main.drawObj) return;
 
-      if (
-        $(this)
-        .children("p")
-        .attr("tool")
-      ) {
-        main.selTool = $(this)
-          .children("p")
-          .attr("tool");
+      if ($(this).children("p").attr("tool")) {
+        main.selTool = $(this).children("p").attr("tool");
       } else {
         return;
       }
+      
+      $("#menu_area").find("ul").removeClass("show");
 
       $("#menu_area .active").removeClass("active");
-      // $("#background_area").css("display", "none");
+      $("#background_area").css("display", "none");
       $("#font_area").css("display", "none");
       $("#font_style").css("display", "none");
       $("#font_size").css("display", "none");
 
-      $(this).addClass("active");      
+      $(this).addClass("active");
       switch ($(this).index()) {
         case 0:
           main.drawObj.shape = "select";
@@ -238,34 +234,22 @@ var initEnv = function () {
           main.drawObj.setSelectable(false);
           break;
         case 10:
-          $("#font_area").css("display", "block");
-          $("#font_style").css("display", "block");
-          $("#font_size").css("display", "block");
+          // $("#font_area").css("display", "block");
+          // $("#font_style").css("display", "block");
+          // $("#font_size").css("display", "block");
           break;
         case 11:
           $("#background_area").css("display", "block");
           break;
-        default:
-          $("#font_area").css("display", "block");
-          $("#font_style").css("display", "block");
-          $("#font_size").css("display", "block");          
-          break;
       }
     });
 
-    $(".expand").on("click", function () {
-      if (
-        $(this)
-        .children("ul")
-        .hasClass("show")
-      ) {
-        $(this)
-          .children("ul")
-          .removeClass("show");
+    $(".expand").on("click", function () {      
+      if ($(this).children("ul").hasClass("show")) {
+        $(this).children("ul").removeClass("show");
       } else {
-        $(this)
-          .children("ul")
-          .addClass("show");
+        $("#menu_area").find("ul").removeClass("show");
+        $(this).children("ul").addClass("show");
       }
     });
 
@@ -410,16 +394,92 @@ var initEnv = function () {
               main.drawObj.drawObj.enterEditing();
               break;
             case "cloud":
+            
+              main.drawObj.drawObj = obj;
+              var cloud = obj._objects[0], text = obj._objects[1]
+                  scaleX = cloud.scaleX, scaleY = cloud.scaleY;
+              main.drawObj.canvas.remove(obj);
+              var new_cloud = new fabric.Path(`
+                M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+                C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+                C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+                C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+              `,{
+                type_of: main.shape,
+                left: obj.left, 
+                top: obj.top,
+                width: cloud.width,
+                height: cloud.height,
+                scaleX: scaleX,
+                scaleY: scaleY,
+                fill: "transparent",
+                strokeWidth: cloud.strokeWidth,
+                stroke: cloud.stroke,
+              });              
+     
+              var textInRect = new fabric.IText(text.text, {
+                left: obj.left + main.drawObj.cloud_sz * scaleX,
+                top: obj.top + main.drawObj.cloud_sz * scaleY,
+                fontFamily: text.fontFamily,
+                fontStyle: text.fontStyle,
+                fontSize: text.fontSize,
+                fill: text.fill,
+                hasBorders: false
+              });
+              textInRect.setControlsVisibility({bl: false, br: false, mb: false, ml: false, mr: false, mt: false, tl: false, tr: false, mtr: false});
+              main.drawObj.canvas.add(new_cloud, textInRect);
+              main.drawObj.canvas.bringToFront(textInRect);
+              textInRect.on('editing:exited', function () {
+                  main.drawObj.canvas.remove(new_cloud);
+                  main.drawObj.canvas.remove(textInRect);
+                  var new_cloud1 = new fabric.Path(`
+                    M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+                    C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+                    C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+                    C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+                  `,{
+                    type_of: main.shape,
+                    left: cloud.left, 
+                    top: cloud.top,
+                    width: cloud.width,
+                    height: cloud.height,
+                    scaleX: scaleX,
+                    scaleY: scaleY,
+                    strokeWidth: cloud.strokeWidth,
+                    fill: "transparent",
+                    stroke: cloud.stroke,
+                  });                  
+                  
+                  var textInRect1 = new fabric.IText(textInRect.text, {
+                    left: cloud.left + main.drawObj.cloud_sz * scaleX,
+                    top: cloud.top + main.drawObj.cloud_sz * scaleY,
+                    fontFamily: text.fontFamily,
+                    fontStyle: text.fontStyle,
+                    fontSize: text.fontSize,
+                    fill: text.fill,
+                    hasBorders: false
+                  });
+                  var grp = new fabric.Group([new_cloud1, textInRect1], {
+                    type_of: obj.type_of,
+                    left: obj.left,
+                    top: obj.top,
+                    angle: obj.angle,
+                    width: obj.width,
+                    height: obj.height
+                  });                  
+                  main.drawObj.canvas.add(grp);
+              });
+              break;
+            case "comment":
               main.drawObj.drawObj = obj;
               var rect = obj._objects[0], text = obj._objects[1];
-              
               main.drawObj.canvas.remove(obj);
               var new_rect = new fabric.Rect({
                 left: obj.left,
                 top: obj.top,
                 width: obj.width,
                 height: obj.height,
-                fill: "transparent",
+                fill: rect.fill,
                 stroke: rect.stroke,
                 hasBorders: true
               });  
@@ -444,7 +504,7 @@ var initEnv = function () {
                     top: 0,
                     width: obj.width,
                     height: obj.height,
-                    fill: "transparent",
+                    fill: obj.type_of == "cloud" ? "transparent" : rect.fill,
                     stroke: rect.stroke,
                     hasBorders: true
                   });  
@@ -461,6 +521,7 @@ var initEnv = function () {
                     type_of: obj.type_of,
                     left: obj.left,
                     top: obj.top,
+                    angle: obj.angle,
                     width: obj.width,
                     height: obj.height
                   });                  
@@ -468,63 +529,7 @@ var initEnv = function () {
               });
               // textInRect.enterEditing();
               break;
-            case "comment":
-              main.drawObj.drawObj = obj;
-              hWidth = main.drawObj.drawObj._objects[0].width * canvasZoom;
-              hHeight = main.drawObj.drawObj._objects[0].height * canvasZoom;
-
-              $("#popup_text textarea").val(
-                main.drawObj.drawObj._objects[1].text
-              );
-              main.drawObj.drawObj._objects[1].text = "";
-              $("#popup_text textarea").css({
-                "font-size": main.drawObj.fontSize * canvasZoom
-              });
-              $("#popup_text textarea").css({
-                padding: 5 / canvasZoom + "px"
-              });
-              $("#popup_text textarea").css({
-                "font-family": main.drawObj.fontFamily
-              });
-              if (main.drawObj.fontStyle == "Bold") {
-                $("#popup_text textarea").css({
-                  "font-style": "normal"
-                });
-                $("#popup_text textarea").css({
-                  "font-weight": main.drawObj.fontStyle
-                });
-              } else {
-                $("#popup_text textarea").css({
-                  "font-style": main.drawObj.fontStyle
-                });
-                $("#popup_text textarea").css({
-                  "font-weight": "normal"
-                });
-              }
-
-              $("#popup_text textarea").css({
-                color: main.drawObj.drawColor
-              });
-
-              $("#popup_area").css("left", hPosX + "px");
-              $("#popup_area").css("top", hPosY + "px");
-              $("#popup_text textarea").focus();
-              $("#popup_text textarea").css("width", hWidth + "px");
-              $("#popup_text textarea").css("height", hHeight + "px");
-
-              var resizeObj = main.drawObj.drawObj._objects[0];
-
-              $("#popup_text textarea").mouseup(function () {
-                canvasZoom = main.drawObj.canvas.getZoom();
-                width = $(this).width() + 10; // think the padding (3px)
-                height = $(this).height() + 10; // think the padding (3px)
-                resizeObj.width = width / canvasZoom;
-                resizeObj.height = height / canvasZoom;
-                main.drawObj.canvas.renderAll();
-              });
-
-              main.showPopup("popup_text");
-              break;
+            
           }
           main.drawObj.canvas.deactivateAll();
           main.drawObj.canvas.renderAll();
@@ -731,7 +736,7 @@ var initEnv = function () {
   };
 
   main.initUploader = function () {
-    var btn = document.getElementById("btn_file_upload");
+    var btn = document.getElementById("btn_file_upload");    
     var uploader = new ss.SimpleUpload({
       button: btn,
       url: "php/file_upload.php",
@@ -884,7 +889,7 @@ var initEnv = function () {
                   //   obj.set("stroke", main.drawObj.backColor);
                   //   break;
                   case "cloud":
-                    if(obj.type == 'rect')
+                    if(obj.type == 'path')
                       obj.set("stroke", main.drawObj.backColor);
                     break;
                 }
@@ -938,13 +943,14 @@ var initEnv = function () {
   main.initFonts = function () {
     var font_arr = ["Arial Black", "Cursive", "Sans-serif"];
     var font_html = "";
-    var height = $("#font_area li").length * 35;
-
+    var height = $("#font_area li").length * 35;    
+    
     for (var i = 0; i < font_arr.length; i++) {
       font_html += "<li>" + font_arr[i] + "</li>";
     }
 
     $("#font_area ul").html(font_html);
+    
     $("#font_area ul").css("height", height + "px");
 
     $("#font_area li").on("click", function () {
