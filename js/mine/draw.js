@@ -114,23 +114,35 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{
-						main.drawObj = new fabric.Path(`
-							M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
-							C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
-							C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
-							C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
-						`,{
-							type_of: main.shape,
-							left: left, 
-							top: top,							
-							scaleX: 1,
-							scaleY: 1,
-							fill: "transparent",
-							strokeWidth: 2,
-							stroke: main.backColor,
-						});						
+						var text = new fabric.CustomIText('NewText', {
+							left: left,
+							top: top ,
+							width: 200,
+							height: 200,
+							backColor: 'yellow', 
+							strokeColor: 'blue',
+							textColor: 'red',
+							fontSize: 18,
+							textID: "SommeID"
+						});
+    					main.canvas.add(text);
+						// main.drawObj = new fabric.Path(`
+						// 	M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+						// 	C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+						// 	C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+						// 	C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+						// `,{
+						// 	type_of: main.shape,
+						// 	left: left, 
+						// 	top: top,							
+						// 	scaleX: 1,
+						// 	scaleY: 1,
+						// 	fill: "transparent",
+						// 	strokeWidth: 2,
+						// 	stroke: main.backColor,
+						// });						
 						
-						main.canvas.add(main.drawObj);
+						// main.canvas.add(main.drawObj);
 					}
 					break;
 				case "arrow":
@@ -319,12 +331,12 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{
-						main.drawObj.set({
-							left: Math.min(left, main.sPos.x),
-							top: Math.min(top, main.sPos.y),							
-							scaleX: Math.abs(left - main.sPos.x)/(main.textWidth + main.cloud_sz * 2),
-							scaleY: Math.abs(top - main.sPos.y)/(main.textHeight + main.cloud_sz * 2)
-						});						
+						// main.drawObj.set({
+						// 	left: Math.min(left, main.sPos.x),
+						// 	top: Math.min(top, main.sPos.y),							
+						// 	scaleX: Math.abs(left - main.sPos.x)/(main.textWidth + main.cloud_sz * 2),
+						// 	scaleY: Math.abs(top - main.sPos.y)/(main.textHeight + main.cloud_sz * 2)
+						// });						
 					}
 					break;
 				case "arrow":
@@ -417,49 +429,49 @@ var classDraw = function (scale, canv_id, width, height) {
 			switch (main.shape) {
 				case "cloud":
 					{						
-						var obj = main.drawObj,
-							l = obj.left,
-							t = obj.top,
-							g_w = obj.width,
-							g_h = obj.height,
-							strokeWidth = obj.type == 'path' ? obj.strokeWidth : obj._objects[0].strokeWidth,
-							scaleX = obj.type == 'path' ? obj.scaleX : obj._objects[0].scaleX,
-							scaleY = obj.type == 'path' ? obj.scaleY : obj._objects[0].scaleY;
+						// var obj = main.drawObj,
+						// 	l = obj.left,
+						// 	t = obj.top,
+						// 	g_w = obj.width,
+						// 	g_h = obj.height,
+						// 	strokeWidth = obj.type == 'path' ? obj.strokeWidth : obj._objects[0].strokeWidth,
+						// 	scaleX = obj.type == 'path' ? obj.scaleX : obj._objects[0].scaleX,
+						// 	scaleY = obj.type == 'path' ? obj.scaleY : obj._objects[0].scaleY;
 						
-						main.canvas.remove(main.drawObj);						
-						var cloud = new fabric.Path(`
-							M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
-							C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
-							C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
-							C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
-						`,{
-							type_of: main.shape,
-							left: 0, 
-							top: 0,
-							scaleX: scaleX,
-							scaleY: scaleY,
-							fill: "transparent",
-							strokeWidth: strokeWidth,
-							stroke: main.backColor,
-						});
+						// main.canvas.remove(main.drawObj);						
+						// var cloud = new fabric.Path(`
+						// 	M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+						// 	C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+						// 	C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+						// 	C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+						// `,{
+						// 	type_of: main.shape,
+						// 	left: 0, 
+						// 	top: 0,
+						// 	scaleX: scaleX,
+						// 	scaleY: scaleY,
+						// 	fill: "transparent",
+						// 	strokeWidth: strokeWidth,
+						// 	stroke: main.backColor,
+						// });
 			
-						var textInRect = new fabric.IText("Input text here", {
-							left: main.cloud_sz * scaleX,
-							top:  main.cloud_sz * scaleY,
-							type_of: main.shape,													
-							fontFamily: main.fontFamily,
-							fontStyle: main.fontStyle,
-							fontSize: main.fontSize,
-							fill: main.drawColor,
-							selectable: false
-						});
-						main.drawObj = new fabric.Group([cloud, textInRect],
-						{	
-							type_of: main.shape,
-							left: l,
-							top: t,
-						});
-						main.canvas.add(main.drawObj);
+						// var textInRect = new fabric.IText("Input text here", {
+						// 	left: main.cloud_sz * scaleX,
+						// 	top:  main.cloud_sz * scaleY,
+						// 	type_of: main.shape,													
+						// 	fontFamily: main.fontFamily,
+						// 	fontStyle: main.fontStyle,
+						// 	fontSize: main.fontSize,
+						// 	fill: main.drawColor,
+						// 	selectable: false
+						// });
+						// main.drawObj = new fabric.Group([cloud, textInRect],
+						// {	
+						// 	type_of: main.shape,
+						// 	left: l,
+						// 	top: t,
+						// });
+						// main.canvas.add(main.drawObj);
 					}					
 					break;
 				case "text":
@@ -522,143 +534,228 @@ var classDraw = function (scale, canv_id, width, height) {
 					break;
 			}
 		});
-		main.canvas.on({'object:scaling': function (e) {
-				
-				var group = e.target,
-					w = group.width * group.scaleX,
-					h = group.height * group.scaleY,
-					s = group.strokeWidth;
-
-				switch( group.type_of){
-					case "cloud":
-						var scaleX = w/group._objects[0].width,
-							scaleY = h/group._objects[0].height; 
-						group._objects[0].set({
-						 	left: -w/2,
-							top: -h/2,
-							scaleX: scaleX,
-							scaleY: scaleY
-						})
-						group._objects[1].set({
-							left: -w/2 + main.cloud_sz * scaleX,
-							top: -h/2 + main.cloud_sz * scaleY
-						})
-						group.set({							
-							height: h,
-							width: w							
-						});
-					break;
-					case "comment":
-						group._objects[0].set({
-							left: -w/2,
-							top: -h/2,
-							width: w,
-							height: h
-						})
-						group._objects[1].set({
-							left: -w/2,
-							top: -h/2,
-						})
-						group.set({
-							type_of: 'comment',
-							height: h,
-							width: w,
-							padding: 0,
-							strokeWidth: s
-						});
+		// fabric.util.addListener(main.canvas.upperCanvasEl, 'dblclick', function (e) {
+		// 	var target = main.canvas.findTarget(e);			
+		// 	switch(target.type_of){
+		// 		case "cloud":
+		// 			console.log(target)
+		// 			var cloud = target._objects[0], text = target._objects[1],
+		// 				angle = target.angle, scaleX = cloud.scaleX, scaleY = cloud.scaleY;
+					
+		// 			main.canvas.remove(target);
+		// 			var new_cloud = new fabric.Path(`
+		// 				M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+		// 				C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+		// 				C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+		// 				C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+		// 				`,{
+		// 				type_of: main.shape,
+		// 				left: target.left, 
+		// 				top: target.top,
+		// 				width: cloud.width,
+		// 				angle: angle,
+		// 				height: cloud.height,
+		// 				scaleX: scaleX,
+		// 				scaleY: scaleY,
+		// 				fill: "transparent",
+		// 				strokeWidth: cloud.strokeWidth,
+		// 				stroke: cloud.stroke,
+		// 			});              
+		
+		// 			var textInRect = new fabric.IText(text.text, {
+		// 				left: target.left + main.cloud_sz * scaleX,
+		// 				top: target.top + main.cloud_sz * scaleY,
+		// 				fontFamily: text.fontFamily,
+		// 				fontStyle: text.fontStyle,
+		// 				angle: angle,
+		// 				fontSize: text.fontSize,
+		// 				fill: text.fill,
+		// 				lockMovementX: true,
+		// 				lockMovementY: true,
+		// 				hasBorders: false
+		// 			});
+		// 			textInRect.setControlsVisibility({bl: false, br: false, mb: false, ml: false, mr: false, mt: false, tl: false, tr: false, mtr: false});
+		// 			main.canvas.add(new_cloud, textInRect);
+		// 			main.canvas.bringToFront(textInRect);
+		// 			textInRect.on('editing:exited', function () {
+		// 				main.canvas.remove(new_cloud);
+		// 				main.canvas.remove(textInRect);
+		// 				var new_cloud1 = new fabric.Path(`
+		// 				M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+		// 				C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+		// 				C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+		// 				C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+		// 				`,{
+		// 				type_of: main.shape,
+		// 				left: cloud.left, 
+		// 				top: cloud.top,
+		// 				width: cloud.width,
+		// 				height: cloud.height,                    
+		// 				scaleX: scaleX,
+		// 				scaleY: scaleY,
+		// 				strokeWidth: cloud.strokeWidth,
+		// 				fill: "transparent",
+		// 				stroke: cloud.stroke,
+		// 				});                  
 						
-					break;
-				}				
+		// 				var textInRect1 = new fabric.IText(textInRect.text, {
+		// 				left: cloud.left + main.cloud_sz * scaleX,
+		// 				top: cloud.top + main.cloud_sz * scaleY,
+		// 				fontFamily: text.fontFamily,
+		// 				fontStyle: text.fontStyle,
+		// 				fontSize: text.fontSize,                    
+		// 				fill: text.fill,
+		// 				hasBorders: false
+		// 				});
+		// 				var grp = new fabric.Group([new_cloud1, textInRect1], {
+		// 				type_of: target.type_of,
+		// 				left: target.left,
+		// 				top: target.top,
+		// 				angle: target.angle,
+		// 				width: target.width,
+		// 				height: target.height
+		// 				});                  
+		// 				main.canvas.add(grp);
+		// 			});					
+		// 		break;
+		// 	}
+		// });
+		main.canvas.on({'object:scaling': function (e) {				
+				// var group = e.target,
+				// 	w = group.width * group.scaleX,
+				// 	h = group.height * group.scaleY,
+				// 	s = group.strokeWidth;
+
+				// switch( group.type_of){
+				// 	case "cloud":
+				// 		var scaleX = w/group._objects[0].width,
+				// 			scaleY = h/group._objects[0].height; 
+				// 		group._objects[0].set({
+				// 		 	left: -w/2,
+				// 			top: -h/2,
+				// 			scaleX: scaleX,
+				// 			scaleY: scaleY
+				// 		})
+				// 		group._objects[1].set({
+				// 			left: -w/2 + main.cloud_sz * scaleX,
+				// 			top: -h/2 + main.cloud_sz * scaleY
+				// 		})
+				// 		group.set({							
+				// 			height: h,
+				// 			width: w							
+				// 		});
+				// 	break;
+				// 	case "comment":
+				// 		group._objects[0].set({
+				// 			left: -w/2,
+				// 			top: -h/2,
+				// 			width: w,
+				// 			height: h
+				// 		})
+				// 		group._objects[1].set({
+				// 			left: -w/2,
+				// 			top: -h/2,
+				// 		})
+				// 		group.set({
+				// 			type_of: 'comment',
+				// 			height: h,
+				// 			width: w,
+				// 			padding: 0,
+				// 			strokeWidth: s
+				// 		});
+						
+				// 	break;
+				// }				
 			}
 		});
 		main.canvas.on({'object:modified': function (e) {
 				
-				console.log('modified')				
-				var group = e.target;
+				// console.log('modified')				
+				// var group = e.target;
 
-				if(group.type_of == 'cloud' || group.type_of == 'comment'){
-					var	l = group.left,
-						t = group.top,
-						g_w = group.width,
-						g_h = group.height,
-						angle = group.angle,
-						strokeWidth = group._objects[0].strokeWidth,
-						scaleX = group._objects[0].scaleX,
-						scaleY = group._objects[0].scaleY,
-						ff = group._objects[1].fontFamily,
-						fs = group._objects[1].fontSize,
-						fst = group._objects[1].fontStyle;
+				// if(group.type_of == 'cloud' || group.type_of == 'comment'){
+				// 	var	l = group.left,
+				// 		t = group.top,
+				// 		g_w = group.width,
+				// 		g_h = group.height,
+				// 		angle = group.angle,
+				// 		strokeWidth = group._objects[0].strokeWidth,
+				// 		scaleX = group._objects[0].scaleX,
+				// 		scaleY = group._objects[0].scaleY,
+				// 		ff = group._objects[1].fontFamily,
+				// 		fs = group._objects[1].fontSize,
+				// 		fst = group._objects[1].fontStyle;
 					
-					main.canvas.remove(group);
-					switch( group.type_of){
-						case 'cloud':
-							var cloud = new fabric.Path(`
-								M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
-								C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
-								C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
-								C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
-							`,{
-								type_of: 'cloud',
-								left: 0, 
-								top: 0,
-								scaleX: scaleX,
-								scaleY: scaleY,
-								fill: "transparent",
-								strokeWidth: strokeWidth,
-								stroke: main.backColor,
-							});
+				// 	main.canvas.remove(group);
+				// 	switch( group.type_of){
+				// 		case 'cloud':
+				// 			var cloud = new fabric.Path(`
+				// 				M0 30 C0 0,30 0,30 30 C30 0,60 0,60 30 C60 0,90 0,90 30 C90 0,120 0,120 30 C120 0,150 0,150 30
+				// 				C180 30,180 60,150 60 C180 60,180 90,150 90 C180 90,180 120,150 120
+				// 				C150 150,120 150,120 120 C120 150,90 150,90 120 C90 150,60 150,60 120 C60 150,30 150,30 120 C30 150,0 150,0 120
+				// 				C-30 120,-30 90,0 90 C-30 90,-30 60,0 60 C-30 60,-30 30,0 30
+				// 			`,{
+				// 				type_of: 'cloud',
+				// 				left: 0, 
+				// 				top: 0,
+				// 				scaleX: scaleX,
+				// 				scaleY: scaleY,
+				// 				fill: "transparent",
+				// 				strokeWidth: strokeWidth,
+				// 				stroke: main.backColor,
+				// 			});
 							
-							var textInRect = new fabric.IText(group._objects[1].text, {
-								type_of: 'cloud',
-								left: main.cloud_sz * scaleX,
-								top: main.cloud_sz * scaleY,
-								fontFamily: ff,
-								fontStyle: fst,
-								fontSize: fs,
-								fill: main.drawColor,
-								selectable: false
-							});
-							main.drawObj = new fabric.Group([cloud, textInRect],
-							{	
-								type_of: 'cloud',
-								angle: angle,
-								left: l,
-								top: t
-							});				
-							main.canvas.add(main.drawObj);
-						break;
-						case 'comment':
-							var rect = new fabric.Rect({
-								type_of: 'comment',
-								left: 0,
-								top: 0,
-								width: g_w - 1,
-								height: g_h - 1,
-								fill: main.backColor,
-								stroke: 'black',
-								hasBorders: true
-							});
-							var textInRect = new fabric.IText(group._objects[1].text, {
-								type_of: 'comment',
-								left:0,
-								top: 0,						
-								fontFamily: ff,
-								fontStyle: fst,
-								fontSize: fs,
-								fill: main.drawColor,
-								selectable: false
-							});
-							main.drawObj = new fabric.Group([rect, textInRect],
-							{	
-								type_of: 'comment',
-								angle: angle,
-								left: l,
-								top: t
-							});				
-							main.canvas.add(main.drawObj);
-						break;
-					}				
-				}	
+				// 			var textInRect = new fabric.IText(group._objects[1].text, {
+				// 				type_of: 'cloud',
+				// 				left: main.cloud_sz * scaleX,
+				// 				top: main.cloud_sz * scaleY,
+				// 				fontFamily: ff,
+				// 				fontStyle: fst,
+				// 				fontSize: fs,
+				// 				fill: main.drawColor,
+				// 				selectable: false
+				// 			});
+				// 			main.drawObj = new fabric.Group([cloud, textInRect],
+				// 			{	
+				// 				type_of: 'cloud',
+				// 				angle: angle,
+				// 				left: l,
+				// 				top: t
+				// 			});				
+				// 			main.canvas.add(main.drawObj);
+				// 		break;
+				// 		case 'comment':
+				// 			var rect = new fabric.Rect({
+				// 				type_of: 'comment',
+				// 				left: 0,
+				// 				top: 0,
+				// 				width: g_w - 1,
+				// 				height: g_h - 1,
+				// 				fill: main.backColor,
+				// 				stroke: 'black',
+				// 				hasBorders: true
+				// 			});
+				// 			var textInRect = new fabric.IText(group._objects[1].text, {
+				// 				type_of: 'comment',
+				// 				left:0,
+				// 				top: 0,						
+				// 				fontFamily: ff,
+				// 				fontStyle: fst,
+				// 				fontSize: fs,
+				// 				fill: main.drawColor,
+				// 				selectable: false
+				// 			});
+				// 			main.drawObj = new fabric.Group([rect, textInRect],
+				// 			{	
+				// 				type_of: 'comment',
+				// 				angle: angle,
+				// 				left: l,
+				// 				top: t
+				// 			});				
+				// 			main.canvas.add(main.drawObj);
+				// 		break;
+				// 	}				
+				// }	
 			}		
 		});		
 	}
@@ -977,7 +1074,14 @@ var classDraw = function (scale, canv_id, width, height) {
 				copied.type_of = 'text';
 				main.canvas.add(copied);
 				copied.setCoords();
-				break;			
+				break;
+			default:
+				var copied = Object.create(main.clipboard);
+				copied.left = x;
+				copied.top = y;
+				main.canvas.add(copied);
+				copied.setCoords();
+				break;
 		}				
 		main.canvas.renderAll();
 	}
@@ -1067,4 +1171,52 @@ var groupDblClick = function (obj, handler) {
             }, 500);
         }
     };
+};
+fabric.CustomIText = fabric.util.createClass(fabric.Textbox, {
+	type        : 'custom-itext',
+	initialize  : function(element, options) {
+		this.callSuper('initialize', element, options);
+		options && this.set('textID', options.textID);
+		this.width = options.width;		
+		this.rect_w = options.width;
+		this.rect_h = options.height;
+		this.fontSize = options.fontSize;
+		this.lineLetters = this.rect_w / (options.fontSize);
+		this.letters = 1;
+	},
+	onKeyDown: function(e) {
+		this.callSuper('onKeyDown', e);
+		this.letters++;
+		
+		if(this.letters >= this.lineLetters){
+			this.text += '\n';
+			this.setSelectionStart(this.text.length)
+			this.setSelectionEnd(this.text.length)
+			this.letters = 1;
+		}
+		
+	},
+	_render: function(ctx) {
+		var x = -this.rect_w/2, y = -this.height/2;
+		ctx.strokeStyle = this.textColor;
+		// ctx.clearRect(x, y, this.width, this.rect_h);
+		this.callSuper('_render', ctx);
+		ctx.rect(x, y, this.rect_w, this.rect_h);
+		ctx.stroke();
+
+		// ctx.fillStyle = '#fff';
+		// ctx.fillRect(
+		// 	-(this.width / 2) - this.H_PADDING,
+		// 	-(this.height / 2) - this.H_PADDING,
+		// 	this.width + this.H_PADDING * 2,
+		// 	this.height + this.V_PADDING * 2);
+		// ctx.drawImage(this.image, -this.width / 2, -this.height / 2);
+		
+	},
+	// toObject: function() {
+	// 	return fabric.util.object.extend(this.callSuper('toObject'), {textID: this.textID});
+	// }
+});    
+fabric.CustomIText.fromObject = function(object) {
+	return new fabric.CustomIText(object.text, object);
 };

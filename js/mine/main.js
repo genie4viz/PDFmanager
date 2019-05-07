@@ -366,10 +366,14 @@ var initEnv = function () {
       if (main.drawObj.canvas.getActiveObject()) {
         switch (main.drawObj.canvas.getActiveObject().type_of) {
           case "path":
-          case "arrow":
-          case "ruler_group":
-            $("#context_menu li:nth-child(1)").addClass("disabled");
             break;
+          case "arrow":
+            break;
+          case "ruler":
+            $("#context_menu li:nth-child(0)").addClass("disabled");
+            $("#context_menu li:nth-child(1)").addClass("disabled");
+            $("#context_menu li:nth-child(2)").addClass("disabled");
+            break;          
         }
       }
 
@@ -393,8 +397,7 @@ var initEnv = function () {
               main.drawObj.drawObj = obj;
               main.drawObj.drawObj.enterEditing();
               break;
-            case "cloud":
-            
+            case "cloud":            
               main.drawObj.drawObj = obj;
               var cloud = obj._objects[0], text = obj._objects[1],
                   angle = obj.angle, scaleX = cloud.scaleX, scaleY = cloud.scaleY;
